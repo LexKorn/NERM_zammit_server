@@ -18,9 +18,17 @@ const Info = sequelize.define('info', {
     id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
     customer: {type: DataTypes.STRING, allowNull: false},
     designer: {type: DataTypes.STRING, allowNull: true},
-    period: {type: DataTypes.STRING, allowNull: false},
-    volumes: {type: DataTypes.ARRAY(DataTypes.STRING), allowNull: false},
-    information: {type: DataTypes.ARRAY(DataTypes.STRING), allowNull: false}
+    period: {type: DataTypes.STRING, allowNull: false}
+});
+
+const InfoInform = sequelize.define('info_inform', {
+    id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
+    inform: {type: DataTypes.STRING, allowNull: false}
+});
+
+const InfoVolume = sequelize.define('info_volume', {
+    id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
+    volume: {type: DataTypes.STRING, allowNull: false}
 });
 
 const Project = sequelize.define('project', {
@@ -28,8 +36,12 @@ const Project = sequelize.define('project', {
     name: {type: DataTypes.STRING, allowNull: false},
     task: {type: DataTypes.STRING, allowNull: false},
     location: {type: DataTypes.STRING, allowNull: false},
-    photos: {type: DataTypes.ARRAY(DataTypes.STRING), allowNull: false},
     category: {type: DataTypes.STRING, allowNull: false}
+});
+
+const ProjectPhoto = sequelize.define('project_photo', {
+    id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
+    photo: {type: DataTypes.STRING, allowNull: false}
 });
 
 const Servise = sequelize.define('servise', {
@@ -48,28 +60,74 @@ const Slider = sequelize.define('slider', {
 const System = sequelize.define('system', {
     id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
     title: {type: DataTypes.STRING, allowNull: false},
-    description: {type: DataTypes.STRING, allowNull: false},
-    photos: {type: DataTypes.ARRAY(DataTypes.STRING), allowNull: false}
+    description: {type: DataTypes.STRING, allowNull: false}
+});
+
+const SystemPhoto = sequelize.define('system_photo', {
+    id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
+    photo: {type: DataTypes.STRING, allowNull: false}
 });
 
 const Vacancy = sequelize.define('vacancy', {
     id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
-    name: {type: DataTypes.STRING, allowNull: false},
-    duties: {type: DataTypes.ARRAY(DataTypes.STRING), allowNull: false},
-    requirements: {type: DataTypes.ARRAY(DataTypes.STRING), allowNull: false},
-    conditions: {type: DataTypes.ARRAY(DataTypes.STRING), allowNull: false}
+    name: {type: DataTypes.STRING, allowNull: false}
 });
+
+const VacancyCondition = sequelize.define('vacancy_condition', {
+    id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
+    condition: {type: DataTypes.STRING, allowNull: false}
+});
+
+const VacancyDuty = sequelize.define('vacancy_duty', {
+    id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
+    duty: {type: DataTypes.STRING, allowNull: false}
+});
+
+const VacancyRequirement = sequelize.define('vacancy_requirement', {
+    id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
+    requirement: {type: DataTypes.STRING, allowNull: false}
+});
+
 
 Project.hasOne(Info);
 Info.belongsTo(Project);
+
+Info.hasMany(InfoInform, {as: 'inform'});
+InfoInform.belongsTo(Info);
+
+Info.hasMany(InfoVolume, {as: 'volume'});
+InfoVolume.belongsTo(Info);
+
+Project.hasMany(ProjectPhoto, {as: 'photo'});
+ProjectPhoto.belongsTo(Project);
+
+System.hasMany(SystemPhoto, {as: 'photo'});
+SystemPhoto.belongsTo(System);
+
+Vacancy.hasMany(VacancyCondition, {as: 'condition'});
+VacancyCondition.belongsTo(Vacancy);
+
+Vacancy.hasMany(VacancyDuty, {as: 'duty'});
+VacancyDuty.belongsTo(Vacancy);
+
+Vacancy.hasMany(VacancyRequirement, {as: 'requirement'});
+VacancyRequirement.belongsTo(Vacancy);
+
 
 module.exports = {
     Admin,
     Contacts,
     Info,
+    InfoInform,
+    InfoVolume,
     Project,
+    ProjectPhoto,
     Servise,
     Slider,
     System,
-    Vacancy
+    SystemPhoto,
+    Vacancy,
+    VacancyCondition,
+    VacancyDuty,
+    VacancyRequirement
 };

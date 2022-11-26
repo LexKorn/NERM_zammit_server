@@ -2,7 +2,6 @@ const uuid = require('uuid');
 const path = require('path');
 
 const {Servise} = require('../models/models');
-// const ApiError = require('../error/ApiError');
 
 const _transformServise = (servise) => {
     return {
