@@ -1,5 +1,6 @@
 const uuid = require('uuid');
 const path = require('path');
+const _ = require('lodash');
 
 const {System, SystemPhoto} = require('../models/models');
 
@@ -16,6 +17,7 @@ class SystemController {
     async create(req, res) {
         try {
             let {title, description} = req.body;
+            const {photo} = req.files;
             
 
             const candicate = await System.findOne({where: {title}});
@@ -25,18 +27,16 @@ class SystemController {
 
             const system = await System.create({title, description});            
 
-            if (photo) {
-                photo = JSON.parse(photo);
+            if (photo.length > 0) {
+                _.forEach(_.keysIn(photo), (key) => {
+                    let image = photo[key];
+                    let fileName = uuid.v4() + ".jpg";
 
-                const {image} = req.files;
-                let fileName = uuid.v4() + ".jpg";
+                    image.mv(path.resolve(__dirname, '..', 'static', fileName));
 
-                image.mv(path.resolve(__dirname, '..', 'static', fileName));
-
-                photo.forEach(item => {
                     SystemPhoto.create({
-                        sistemId: system.id,
-                        photo: item.image
+                        systemId: system.id,
+                        photo: fileName
                     });
                 });
             }
@@ -50,8 +50,12 @@ class SystemController {
 
     async getAll(req, res) {
         try {
-            const systems = await System.findAll();
-            return res.json(systems.map(system => _transformSystem(system)));
+            const systems = await System.findAll({
+                include: [
+                    {model: SystemPhoto, as: 'photo'}
+                ]
+            });
+            return res.json(systems);
 
         } catch(err) {
             res.status(400).json(err.message);
@@ -61,8 +65,13 @@ class SystemController {
     async getOne(req, res) {
         try {
             const {id} = req.params;
-            const system = await System.findOne({where: {id}});
-            return res.json(_transformSystem(system));
+            const system = await System.findOne({
+                where: {id},
+                include: [
+                    {model: SystemPhoto, as: 'photo'}
+                ]
+            });
+            return res.json(system);
 
         } catch(err) {
             res.status(400).json(err.message);
@@ -72,7 +81,12 @@ class SystemController {
     async delete(req, res) {
         try {
             const {id} = req.params;
-            await System.destroy({where: {id}});
+            await System.destroy({
+                where: {id},
+                include: [
+                    {model: SystemPhoto, as: 'photo'}
+                ]
+            });
             return res.json('Slide was deleted');
 
         } catch(err) {
@@ -83,13 +97,18 @@ class SystemController {
     async update(req, res) {
         try {
             const {id} = req.params;
-            const {title} = req.body;
-            const {description} = req.files;
+            const {title, description} = req.body;
+            const {photo} = req.files;
             let fileName = uuid.v4() + ".jpg";
 
-            description.mv(path.resolve(__dirname, '..', 'static', fileName));
+            photo.mv(path.resolve(__dirname, '..', 'static', fileName));
 
-            await System.update({title, description: fileName}, {where: {id}});
+            await System.update({title, description}, {
+                where: {id},
+                include: [
+                    {model: SystemPhoto, as: 'photo'}
+                ]
+            });
             return res.json('Slide was updated');
 
         } catch(err) {

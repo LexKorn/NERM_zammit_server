@@ -11,8 +11,7 @@ const {Vacancy, VacancyCondition, VacancyDuty, VacancyRequirement} = require('..
 class VacancyController {
     async create(req, res) {
         try {
-            // let {name, condition, duty, requirement} = req.body;
-            let {name, condition} = req.body;
+            let {name, condition, duty, requirement} = req.body;
 
             const vacancy = await Vacancy.create({name});
 
@@ -26,25 +25,25 @@ class VacancyController {
                 });
             }
 
-            // if (duty) {
-            //     duty = JSON.parse(duty);
-            //     duty.forEach(item => {
-            //         VacancyDuty.create({
-            //             duty: item.duty,
-            //             vacancyId: vacancy.id
-            //         });
-            //     });
-            // }
+            if (duty) {
+                duty = JSON.parse(duty);
+                duty.forEach(item => {
+                    VacancyDuty.create({
+                        duty: item.text,
+                        vacancyId: vacancy.id
+                    });
+                });
+            }
 
-            // if (requirement) {
-            //     requirement = JSON.parse(requirement);
-            //     requirement.forEach(item => {
-            //         VacancyRequirement.create({
-            //             requirement: item.requirement,
-            //             vacancyId: vacancy.id
-            //         });
-            //     });
-            // }
+            if (requirement) {
+                requirement = JSON.parse(requirement);
+                requirement.forEach(item => {
+                    VacancyRequirement.create({
+                        requirement: item.text,
+                        vacancyId: vacancy.id
+                    });
+                });
+            }
             
             return res.json(vacancy);
 
