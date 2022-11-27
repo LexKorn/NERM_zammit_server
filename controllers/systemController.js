@@ -98,17 +98,12 @@ class SystemController {
         try {
             const {id} = req.params;
             const {title, description} = req.body;
-            const {photo} = req.files;
-            let fileName = uuid.v4() + ".jpg";
+            // const {photo} = req.files;
+            // let fileName = uuid.v4() + ".jpg";
 
-            photo.mv(path.resolve(__dirname, '..', 'static', fileName));
+            // photo.mv(path.resolve(__dirname, '..', 'static', fileName));
 
-            await System.update({title, description}, {
-                where: {id},
-                include: [
-                    {model: SystemPhoto, as: 'photo'}
-                ]
-            });
+            await System.update({title, description}, {where: {id}});
             return res.json('Slide was updated');
 
         } catch(err) {

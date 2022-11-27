@@ -109,14 +109,7 @@ class VacancyController {
             const {id} = req.params;
             const {name} = req.body;
 
-            await Vacancy.update({name}, {
-                where: {id},
-                include: [
-                    {model: VacancyCondition, as: 'condition'},
-                    {model: VacancyDuty, as: 'duty'},
-                    {model: VacancyRequirement, as: 'requirement'}
-                ]
-            });
+            await Vacancy.update({name}, {where: {id}});
             return res.json('Vacancy was updated');
 
         } catch(err) {
