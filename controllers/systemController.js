@@ -17,17 +17,20 @@ class SystemController {
     async create(req, res) {
         try {
             let {title, description} = req.body;
-            const {photo} = req.files;
-            
 
             const candicate = await System.findOne({where: {title}});
             if (candicate) {
                 return res.status(400).json({message: 'Такая система уже существует!'});
             } 
 
-            const system = await System.create({title, description});            
+            const system = await System.create({title, description});     
+            
+            if (req.files === null) {
+                return res.status(400).json({message: 'Отсутствует изображение'});
+            } 
+            const {photo} = req.files;           
 
-            if (photo.length > 0) {
+            if (Array.isArray(photo)) {
                 _.forEach(_.keysIn(photo), (key) => {
                     let image = photo[key];
                     let fileName = uuid.v4() + ".jpg";
@@ -38,6 +41,14 @@ class SystemController {
                         systemId: system.id,
                         photo: fileName
                     });
+                });
+            } else {
+                let fileName = uuid.v4() + ".jpg";
+                photo.mv(path.resolve(__dirname, '..', 'static', fileName));
+
+                SystemPhoto.create({
+                    systemId: system.id,
+                    photo: fileName
                 });
             }
 

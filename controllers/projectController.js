@@ -17,27 +17,22 @@ class ProjectController {
     async create(req, res) {
         try {
             let {name, task, location, category, customer, designer, period} = req.body;
-            const {photo} = req.files;
             
-
             const candicate = await Project.findOne({where: {name}});
             if (candicate) {
                 return res.status(400).json({message: 'Такой проект уже существует!'});
             } 
 
-            const project = await Project.create({name, task, location, category});            
+            const project = await Project.create({name, task, location, category});   
 
-            if (photo.length = 0) {
-                return res.status(400).json({message: 'Добавьте изображение'});
-            } else if (photo.length = 1) {
-                let fileName = uuid.v4() + ".jpg";
-                photo.mv(path.resolve(__dirname, '..', 'static', fileName));
+            Info.create({customer, designer, period, projectId: project.id});
+            
+            if (req.files === null) {
+                return res.status(400).json({message: 'Отсутствует изображение'});
+            } 
+            const {photo} = req.files;
 
-                ProjectPhoto.create({
-                    projectId: project.id,
-                    photo: fileName
-                });
-            }else if (photo.length > 1) {
+            if (Array.isArray(photo)) {
                 _.forEach(_.keysIn(photo), (key) => {
                     let image = photo[key];
                     let fileName = uuid.v4() + ".jpg";
@@ -49,9 +44,15 @@ class ProjectController {
                         photo: fileName
                     });
                 });
-            }
+            } else {
+                let fileName = uuid.v4() + ".jpg";
+                photo.mv(path.resolve(__dirname, '..', 'static', fileName));
 
-            Info.create({customer, designer, period, projectId: project.id});
+                ProjectPhoto.create({
+                    projectId: project.id,
+                    photo: fileName
+                }); 
+            }
 
             return res.json(project);
 
