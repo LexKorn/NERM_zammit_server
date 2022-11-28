@@ -71,6 +71,10 @@ class ServiseController {
         try {
             const {id} = req.params;
             const {title, description} = req.body;
+
+            if (req.files === null) {
+                return res.status(400).json({message: 'Отсутствует изображение'});
+            } 
             const {cover} = req.files;
             let fileName = uuid.v4() + ".jpg";
 
