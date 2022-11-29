@@ -2,7 +2,7 @@ const uuid = require('uuid');
 const path = require('path');
 const _ = require('lodash');
 
-const {Project, ProjectPhoto, Info} = require('../models/models');
+const {Project, ProjectPhoto, Info, InfoInform, InfoVolume} = require('../models/models');
 
 // const _transformProject = (project) => {
 //     return {
@@ -16,7 +16,7 @@ const {Project, ProjectPhoto, Info} = require('../models/models');
 class ProjectController {
     async create(req, res) {
         try {
-            let {name, task, location, category, customer, designer, period} = req.body;
+            let {name, task, location, category, customer, designer, period, volume, inform} = req.body;
             
             const candicate = await Project.findOne({where: {name}});
             if (candicate) {
@@ -25,7 +25,27 @@ class ProjectController {
 
             const project = await Project.create({name, task, location, category});   
 
-            Info.create({customer, designer, period, projectId: project.id});
+            const info = await Info.create({customer, designer, period, projectId: project.id});
+
+            if (volume) {
+                volume = JSON.parse(volume);
+                volume.forEach(item => {
+                    InfoVolume.create({
+                        volume: item.text,
+                        infoId: info.id
+                    });
+                });
+            }
+
+            if (inform) {
+                inform = JSON.parse(inform);
+                inform.forEach(item => {
+                    InfoInform.create({
+                        inform: item.text,
+                        infoId: info.id
+                    });
+                });
+            }
             
             if (req.files === null) {
                 return res.status(400).json({message: 'Отсутствует изображение'});
@@ -66,7 +86,12 @@ class ProjectController {
             const projects = await Project.findAll({
                 include: [
                     {model: ProjectPhoto, as: 'photo'},
-                    {model: Info, as: 'info'}
+                    {model: Info, as: 'info',
+                        include: [
+                            {model: InfoVolume, as: 'volume'},
+                            {model: InfoInform, as: 'inform'}
+                        ]
+                    } 
                 ]
             });
             return res.json(projects);
@@ -82,7 +107,13 @@ class ProjectController {
             const project = await Project.findOne({
                 where: {id},
                 include: [
-                    {model: ProjectPhoto, as: 'photo'}
+                    {model: ProjectPhoto, as: 'photo'},
+                    {model: Info, as: 'info',
+                        include: [
+                            {model: InfoVolume, as: 'volume'},
+                            {model: InfoInform, as: 'inform'}
+                        ]
+                    } 
                 ]
             });
             return res.json(project);
@@ -98,7 +129,13 @@ class ProjectController {
             await Project.destroy({
                 where: {id},
                 include: [
-                    {model: ProjectPhoto, as: 'photo'}
+                    {model: ProjectPhoto, as: 'photo'},
+                    {model: Info, as: 'info',
+                        include: [
+                            {model: InfoVolume, as: 'volume'},
+                            {model: InfoInform, as: 'inform'}
+                        ]
+                    } 
                 ]
             });
             return res.json('Project was deleted');
