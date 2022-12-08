@@ -7,6 +7,12 @@ const Admin = sequelize.define('admin', {
     password: {type: DataTypes.STRING, allowNull: false}
 });
 
+const Company = sequelize.define('company', {
+    id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
+    desription: {type: DataTypes.STRING, allowNull: false},
+    department: {type: DataTypes.STRING, allowNull: false}
+});
+
 const Contacts = sequelize.define('contacts', {
     id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
     phone: {type: DataTypes.STRING, allowNull: false},
@@ -116,6 +122,7 @@ VacancyRequirement.belongsTo(Vacancy);
 
 module.exports = {
     Admin,
+    Company,
     Contacts,
     Info,
     InfoInform,
