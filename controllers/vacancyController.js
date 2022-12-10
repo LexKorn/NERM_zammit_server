@@ -111,26 +111,60 @@ class VacancyController {
 
             await Vacancy.update({name}, {where: {id}});
 
+            VacancyCondition.destroy({where: {vacancyId: id}});
+            VacancyDuty.destroy({where: {vacancyId: id}});
+            VacancyRequirement.destroy({where: {vacancyId: id}});
+
             if (condition) {
                 condition = JSON.parse(condition);
                 condition.forEach(item => {
-                    VacancyCondition.update({condition: item.condition}, {where: {id: item.id}});
+                    VacancyCondition.create({
+                        condition: item.condition,
+                        vacancyId: id
+                    });
                 });
             }
 
             if (duty) {
                 duty = JSON.parse(duty);
                 duty.forEach(item => {
-                    VacancyDuty.update({duty: item.duty}, {where: {id: item.id}});
+                    VacancyDuty.create({
+                        duty: item.duty,
+                        vacancyId: id
+                    });
                 });
             }
 
             if (requirement) {
                 requirement = JSON.parse(requirement);
                 requirement.forEach(item => {
-                    VacancyRequirement.update({requirement: item.requirement}, {where: {id: item.id}});
+                    VacancyRequirement.create({
+                        requirement: item.requirement,
+                        vacancyId: id
+                    });
                 });
             }
+
+            // if (condition) {
+            //     condition = JSON.parse(condition);
+            //     condition.forEach(item => {
+            //         VacancyCondition.update({condition: item.condition}, {where: {id: item.id}});
+            //     });
+            // }
+
+            // if (duty) {
+            //     duty = JSON.parse(duty);
+            //     duty.forEach(item => {
+            //         VacancyDuty.update({duty: item.duty}, {where: {id: item.id}});
+            //     });
+            // }
+
+            // if (requirement) {
+            //     requirement = JSON.parse(requirement);
+            //     requirement.forEach(item => {
+            //         VacancyRequirement.update({requirement: item.requirement}, {where: {id: item.id}});
+            //     });
+            // }
 
             return res.json('Vacancy was updated');
 
