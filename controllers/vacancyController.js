@@ -107,9 +107,31 @@ class VacancyController {
     async update(req, res) {
         try {
             const {id} = req.params;
-            const {name} = req.body;
+            let {name, condition, duty, requirement} = req.body;
 
             await Vacancy.update({name}, {where: {id}});
+
+            if (condition) {
+                condition = JSON.parse(condition);
+                condition.forEach(item => {
+                    VacancyCondition.update({condition: item.condition}, {where: {id: item.id}});
+                });
+            }
+
+            if (duty) {
+                duty = JSON.parse(duty);
+                duty.forEach(item => {
+                    VacancyDuty.update({duty: item.duty}, {where: {id: item.id}});
+                });
+            }
+
+            if (requirement) {
+                requirement = JSON.parse(requirement);
+                requirement.forEach(item => {
+                    VacancyRequirement.update({requirement: item.requirement}, {where: {id: item.id}});
+                });
+            }
+
             return res.json('Vacancy was updated');
 
         } catch(err) {
