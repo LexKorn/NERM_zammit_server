@@ -109,12 +109,35 @@ class SystemController {
         try {
             const {id} = req.params;
             const {title, description} = req.body;
-            // const {photo} = req.files;
-            // let fileName = uuid.v4() + ".jpg";
-
-            // photo.mv(path.resolve(__dirname, '..', 'static', fileName));
 
             await System.update({title, description}, {where: {id}});
+
+            SystemPhoto.destroy({where: {systemId: id}});
+
+            const {photo} = req.files;
+            
+            if (Array.isArray(photo)) {
+                _.forEach(_.keysIn(photo), (key) => {
+                    let image = photo[key];
+                    let fileName = uuid.v4() + ".jpg";
+
+                    image.mv(path.resolve(__dirname, '..', 'static', fileName));
+
+                    SystemPhoto.create({
+                        systemId: id,
+                        photo: fileName
+                    });
+                });
+            } else {
+                let fileName = uuid.v4() + ".jpg";
+                photo.mv(path.resolve(__dirname, '..', 'static', fileName));
+
+                SystemPhoto.create({
+                    systemId: id,
+                    photo: fileName
+                });
+            }
+            
             return res.json('Slide was updated');
 
         } catch(err) {
