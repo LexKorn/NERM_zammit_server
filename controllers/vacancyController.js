@@ -19,7 +19,7 @@ class VacancyController {
                 condition = JSON.parse(condition);
                 condition.forEach(item => {
                     VacancyCondition.create({
-                        condition: item.text,
+                        condition: item.condition,
                         vacancyId: vacancy.id
                     });
                 });
@@ -29,7 +29,7 @@ class VacancyController {
                 duty = JSON.parse(duty);
                 duty.forEach(item => {
                     VacancyDuty.create({
-                        duty: item.text,
+                        duty: item.duty,
                         vacancyId: vacancy.id
                     });
                 });
@@ -39,7 +39,7 @@ class VacancyController {
                 requirement = JSON.parse(requirement);
                 requirement.forEach(item => {
                     VacancyRequirement.create({
-                        requirement: item.text,
+                        requirement: item.requirement,
                         vacancyId: vacancy.id
                     });
                 });
