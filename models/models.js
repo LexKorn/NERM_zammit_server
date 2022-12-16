@@ -9,7 +9,11 @@ const Admin = sequelize.define('admin', {
 
 const Company = sequelize.define('company', {
     id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
-    desription: {type: DataTypes.STRING, allowNull: false},
+    description: {type: DataTypes.TEXT, allowNull: false}    
+});
+
+const CompanyDepartment = sequelize.define('company_department', {
+    id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
     department: {type: DataTypes.STRING, allowNull: false}
 });
 
@@ -53,7 +57,7 @@ const ProjectPhoto = sequelize.define('project_photo', {
 const Servise = sequelize.define('servise', {
     id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
     title: {type: DataTypes.STRING, allowNull: false},
-    description: {type: DataTypes.STRING, allowNull: false},
+    description: {type: DataTypes.TEXT, allowNull: false},
     cover: {type: DataTypes.STRING, allowNull: false}
 });
 
@@ -66,7 +70,7 @@ const Slider = sequelize.define('slider', {
 const System = sequelize.define('system', {
     id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
     title: {type: DataTypes.STRING, allowNull: false},
-    description: {type: DataTypes.STRING, allowNull: false}
+    description: {type: DataTypes.TEXT, allowNull: false}
 });
 
 const SystemPhoto = sequelize.define('system_photo', {
@@ -81,19 +85,22 @@ const Vacancy = sequelize.define('vacancy', {
 
 const VacancyCondition = sequelize.define('vacancy_condition', {
     id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
-    condition: {type: DataTypes.STRING, allowNull: false}
+    condition: {type: DataTypes.TEXT, allowNull: false}
 });
 
 const VacancyDuty = sequelize.define('vacancy_duty', {
     id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
-    duty: {type: DataTypes.STRING, allowNull: false}
+    duty: {type: DataTypes.TEXT, allowNull: false}
 });
 
 const VacancyRequirement = sequelize.define('vacancy_requirement', {
     id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
-    requirement: {type: DataTypes.STRING, allowNull: false}
+    requirement: {type: DataTypes.TEXT, allowNull: false}
 });
 
+
+Company.hasMany(CompanyDepartment, {as: 'department'});
+CompanyDepartment.belongsTo(Company);
 
 Project.hasOne(Info);
 Info.belongsTo(Project);
@@ -123,6 +130,7 @@ VacancyRequirement.belongsTo(Vacancy);
 module.exports = {
     Admin,
     Company,
+    CompanyDepartment,
     Contacts,
     Info,
     InfoInform,

@@ -1,4 +1,4 @@
-const {Company} = require('../models/models');
+const {Company, CompanyDepartment} = require('../models/models');
 
 const _transformCompany = (company) => {
     return {
@@ -14,7 +14,18 @@ class CompanyController {
         try {
             let {description, department} = req.body;
 
-            const company = await Company.create({description, department});            
+            const company = await Company.create({description});
+
+            if (department) {
+                department = JSON.parse(department);
+                department.forEach(item => {
+                    CompanyDepartment.create({
+                        department: item.department,
+                        companyId: company.id
+                    });
+                });
+            }
+
             return res.json(_transformCompany(company));
 
         } catch(err) { 
@@ -25,7 +36,13 @@ class CompanyController {
     async getOne(req, res) {
         try {
             const {id} = req.params;
-            const company = await Company.findOne({where: {id}});
+            const company = await Company.findOne({
+                where: {id},
+                include: [
+                    {model: CompanyDepartment, as: 'department'}
+                ]
+            });
+
             return res.json(_transformCompany(company));
 
         } catch(err) {
@@ -36,9 +53,22 @@ class CompanyController {
     async update(req, res) {
         try {
             const {id} = req.params;
-            const {description, department} = req.body;
+            let {description, department} = req.body;
 
-            await Company.update({description, department}, {where: {id}});
+            await Company.update({description}, {where: {id}});
+
+            CompanyDepartment.destroy({where: {companyId: id}});
+
+            if (department) {
+                department = JSON.parse(department);
+                department.forEach(item => {
+                    CompanyDepartment.create({
+                        department: item.department,
+                        companyId: id
+                    });
+                });
+            }
+
             return res.json('Company was updated');
 
         } catch(err) {
