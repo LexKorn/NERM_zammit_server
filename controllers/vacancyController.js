@@ -1,11 +1,38 @@
 const {Vacancy, VacancyCondition, VacancyDuty, VacancyRequirement} = require('../models/models');
 
-// const _transformVacancy = (vacancy) => {
-//     return {
-//         id: vacancy.id,
-//         name: vacancy.name
-//     }
-// };
+const _transformCondition = (condition) => {
+    return {
+        id: condition.id,
+        vacancyId: condition.vacancyId,
+        condition: condition.condition
+    }
+};
+
+const _transformDuty = (duty) => {
+    return {
+        id: duty.id,
+        vacancyId: duty.vacancyId,
+        duty: duty.duty
+    }
+};
+
+const _transformRequirement = (requirement) => {
+    return {
+        id: requirement.id,
+        vacancyId: requirement.vacancyId,
+        requirement: requirement.requirement
+    }
+};
+
+const _transformVacancy = (vacancy) => {
+    return {
+        id: vacancy.id,
+        name: vacancy.name,
+        condition: vacancy.condition.map(condition => _transformCondition(condition)),
+        duty: vacancy.duty.map(duty => _transformDuty(duty)),
+        requirement: vacancy.requirement.map(requirement => _transformRequirement(requirement))
+    }
+};
 
 
 class VacancyController {
@@ -45,7 +72,7 @@ class VacancyController {
                 });
             }
             
-            return res.json(vacancy);
+            return res.json(_transformVacancy(vacancy));
 
         } catch(err) { 
             res.status(400).json(err.message);
@@ -61,7 +88,7 @@ class VacancyController {
                     {model: VacancyRequirement, as: 'requirement'}
                 ]
             });
-            return res.json(vacancys);
+            return res.json(vacancys.map(vacancy => _transformVacancy(vacancy)));
 
         } catch(err) {
             res.status(400).json(err.message);
@@ -79,7 +106,7 @@ class VacancyController {
                     {model: VacancyRequirement, as: 'requirement'}
                 ]
             });
-            return res.json(vacancy);
+            return res.json(_transformVacancy(vacancy));
 
         } catch(err) {
             res.status(400).json(err.message);
@@ -144,27 +171,6 @@ class VacancyController {
                     });
                 });
             }
-
-            // if (condition) {
-            //     condition = JSON.parse(condition);
-            //     condition.forEach(item => {
-            //         VacancyCondition.update({condition: item.condition}, {where: {id: item.id}});
-            //     });
-            // }
-
-            // if (duty) {
-            //     duty = JSON.parse(duty);
-            //     duty.forEach(item => {
-            //         VacancyDuty.update({duty: item.duty}, {where: {id: item.id}});
-            //     });
-            // }
-
-            // if (requirement) {
-            //     requirement = JSON.parse(requirement);
-            //     requirement.forEach(item => {
-            //         VacancyRequirement.update({requirement: item.requirement}, {where: {id: item.id}});
-            //     });
-            // }
 
             return res.json('Vacancy was updated');
 

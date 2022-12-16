@@ -4,13 +4,22 @@ const _ = require('lodash');
 
 const {System, SystemPhoto} = require('../models/models');
 
-// const _transformSystem = (system) => {
-//     return {
-//         id: system.id,
-//         title: system.title,
-//         description: system.description
-//     }
-// };
+const _transformPhoto = (photo) => {
+    return {
+        id: photo.id,
+        systemId: photo.systemId,
+        photo: photo.photo
+    }
+};
+
+const _transformSystem = (system) => {
+    return {
+        id: system.id,
+        title: system.title,
+        description: system.description,
+        photo: system.photo.map(photo => _transformPhoto(photo))
+    }
+};
 
 
 class SystemController {
@@ -52,7 +61,7 @@ class SystemController {
                 });
             }
 
-            return res.json(system);
+            return res.json(_transformSystem(system));
 
         } catch(err) { 
             res.status(400).json(err.message);
@@ -66,7 +75,7 @@ class SystemController {
                     {model: SystemPhoto, as: 'photo'}
                 ]
             });
-            return res.json(systems);
+            return res.json(systems.map(system => _transformSystem(system)));
 
         } catch(err) {
             res.status(400).json(err.message);
@@ -82,7 +91,7 @@ class SystemController {
                     {model: SystemPhoto, as: 'photo'}
                 ]
             });
-            return res.json(system);
+            return res.json(_transformSystem(system));
 
         } catch(err) {
             res.status(400).json(err.message);
