@@ -24,14 +24,13 @@ class ProjectController {
             } 
 
             const project = await Project.create({name, task, location, category});   
-
             const info = await Info.create({customer, designer, period, projectId: project.id});
 
             if (volume) {
                 volume = JSON.parse(volume);
                 volume.forEach(item => {
                     InfoVolume.create({
-                        volume: item.text,
+                        volume: item.volume,
                         infoId: info.id
                     });
                 });
@@ -41,7 +40,7 @@ class ProjectController {
                 inform = JSON.parse(inform);
                 inform.forEach(item => {
                     InfoInform.create({
-                        inform: item.text,
+                        inform: item.inform,
                         infoId: info.id
                     });
                 });
@@ -148,13 +147,62 @@ class ProjectController {
     async update(req, res) {
         try {
             const {id} = req.params;
-            const {name, task, location, category} = req.body;
-            // const {photo} = req.files;
-            // let fileName = uuid.v4() + ".jpg";
+            let {name, task, location, category, customer, designer, period, volume, inform} = req.body;
 
-            // photo.mv(path.resolve(__dirname, '..', 'static', fileName));
+            const project = await Project.update({name, task, location, category}, {where: {id}});
+            const info = await Info.update({customer, designer, period}, {where: {projectId: id}});
 
-            await Project.update({name, task, location, category}, {where: {id}});
+            InfoVolume.destroy({where: {infoId: project.info.id}});
+            InfoInform.destroy({where: {infoId: project.info.id}});
+            ProjectPhoto.destroy({where: {projectId: id}});
+
+            if (volume) {
+                volume = JSON.parse(volume);
+                volume.forEach(item => {
+                    InfoVolume.create({
+                        volume: item.volume,
+                        infoId: project.info.id
+                    });
+                });
+            }
+
+            if (inform) {
+                inform = JSON.parse(inform);
+                inform.forEach(item => {
+                    InfoInform.create({
+                        inform: item.inform,
+                        infoId: project.info.id
+                    });
+                });
+            }
+            
+            if (req.files === null) {
+                return res.status(400).json({message: 'Отсутствует изображение'});
+            } 
+            const {photo} = req.files;
+
+            if (Array.isArray(photo)) {
+                _.forEach(_.keysIn(photo), (key) => {
+                    let image = photo[key];
+                    let fileName = uuid.v4() + ".jpg";
+
+                    image.mv(path.resolve(__dirname, '..', 'static', fileName));
+
+                    ProjectPhoto.create({
+                        projectId: id,
+                        photo: fileName
+                    });
+                });
+            } else {
+                let fileName = uuid.v4() + ".jpg";
+                photo.mv(path.resolve(__dirname, '..', 'static', fileName));
+
+                ProjectPhoto.create({
+                    projectId: id,
+                    photo: fileName
+                }); 
+            }
+
             return res.json('Project was updated');
 
         } catch(err) {
