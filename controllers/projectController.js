@@ -149,19 +149,19 @@ class ProjectController {
             const {id} = req.params;
             let {name, task, location, category, customer, designer, period, volume, inform} = req.body;
 
-            const project = await Project.update({name, task, location, category}, {where: {id}});
-            const info = await Info.update({customer, designer, period}, {where: {projectId: id}});
+            await Project.update({name, task, location, category}, {where: {id}});
+            await Info.update({customer, designer, period}, {where: {projectId: id}});
+            const info = await Info.findOne({where: {projectId: id}});
 
-            InfoVolume.destroy({where: {infoId: project.info.id}});
-            InfoInform.destroy({where: {infoId: project.info.id}});
-            ProjectPhoto.destroy({where: {projectId: id}});
-
+            InfoVolume.destroy({where: {infoId: info.id}});
+            InfoInform.destroy({where: {infoId: info.id}});
+            
             if (volume) {
                 volume = JSON.parse(volume);
                 volume.forEach(item => {
                     InfoVolume.create({
                         volume: item.volume,
-                        infoId: project.info.id
+                        infoId: info.id
                     });
                 });
             }
@@ -171,10 +171,12 @@ class ProjectController {
                 inform.forEach(item => {
                     InfoInform.create({
                         inform: item.inform,
-                        infoId: project.info.id
+                        infoId: info.id
                     });
                 });
             }
+
+            ProjectPhoto.destroy({where: {projectId: id}});
             
             if (req.files === null) {
                 return res.status(400).json({message: 'Отсутствует изображение'});
