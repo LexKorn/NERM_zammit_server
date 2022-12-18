@@ -2,15 +2,7 @@ const uuid = require('uuid');
 const path = require('path');
 const _ = require('lodash');
 
-const {System, SystemDescription, SystemPhoto} = require('../models/models');
-
-const _transformDescription = (description) => {
-    return {
-        id: description.id,
-        systemId: description.systemId,
-        description: description.description
-    }
-};
+const {System, SystemPhoto} = require('../models/models');
 
 const _transformPhoto = (photo) => {
     return {
@@ -24,7 +16,7 @@ const _transformSystem = (system) => {
     return {
         id: system.id,
         title: system.title,
-        description: system.description.map(description => _transformDescription(description)),
+        description: system.description,
         photo: system.photo.map(photo => _transformPhoto(photo))
     }
 };
@@ -40,17 +32,7 @@ class SystemController {
                 return res.status(400).json({message: 'Такая система уже существует!'});
             } 
 
-            const system = await System.create({title});     
-
-            if (description) {
-                description = JSON.parse(description);
-                description.forEach(item => {
-                    SystemDescription.create({
-                        description: item.description,
-                        systemId: system.id
-                    });
-                });
-            }
+            const system = await System.create({title, description});     
             
             if (req.files === null) {
                 return res.status(400).json({message: 'Отсутствует изображение'});
@@ -79,8 +61,7 @@ class SystemController {
                 });
             }
 
-            return res.json(system);
-            // return res.json(_transformSystem(system));
+            return res.json(_transformSystem(system));
 
         } catch(err) { 
             res.status(400).json(err.message);
@@ -91,7 +72,6 @@ class SystemController {
         try {
             const systems = await System.findAll({
                 include: [
-                    {model: SystemDescription, as: 'description'},
                     {model: SystemPhoto, as: 'photo'}
                 ]
             });
@@ -108,7 +88,6 @@ class SystemController {
             const system = await System.findOne({
                 where: {id},
                 include: [
-                    {model: SystemDescription, as: 'description'},
                     {model: SystemPhoto, as: 'photo'}
                 ]
             });
@@ -125,7 +104,6 @@ class SystemController {
             await System.destroy({
                 where: {id},
                 include: [
-                    {model: SystemDescription, as: 'description'},
                     {model: SystemPhoto, as: 'photo'}
                 ]
             });
@@ -139,22 +117,11 @@ class SystemController {
     async update(req, res) {
         try {
             const {id} = req.params;
-            let {title, description} = req.body;
+            const {title, description} = req.body;
 
-            await System.update({title}, {where: {id}});
+            await System.update({title, description}, {where: {id}});
 
-            SystemDescription.destroy({where: {systemId: id}});
             SystemPhoto.destroy({where: {systemId: id}});
-            
-            if (description) {
-                description = JSON.parse(description);
-                description.forEach(item => {
-                    SystemDescription.create({
-                        description: item.description,
-                        systemId: id
-                    });
-                });
-            }
 
             const {photo} = req.files;
             

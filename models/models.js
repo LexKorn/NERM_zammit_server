@@ -69,8 +69,12 @@ const Slider = sequelize.define('slider', {
 
 const System = sequelize.define('system', {
     id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
-    title: {type: DataTypes.STRING, allowNull: false},
-    description: {type: DataTypes.TEXT, allowNull: false}
+    title: {type: DataTypes.STRING, allowNull: false}
+});
+
+const SystemDescription = sequelize.define('system_description', {
+    id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
+    description: {type: DataTypes.STRING, allowNull: false}
 });
 
 const SystemPhoto = sequelize.define('system_photo', {
@@ -114,6 +118,9 @@ InfoVolume.belongsTo(Info);
 Project.hasMany(ProjectPhoto, {as: 'photo'});
 ProjectPhoto.belongsTo(Project);
 
+System.hasMany(SystemDescription, {as: 'description'});
+SystemDescription.belongsTo(System);
+
 System.hasMany(SystemPhoto, {as: 'photo'});
 SystemPhoto.belongsTo(System);
 
@@ -140,6 +147,7 @@ module.exports = {
     Servise,
     Slider,
     System,
+    SystemDescription,
     SystemPhoto,
     Vacancy,
     VacancyCondition,
