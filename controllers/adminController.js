@@ -41,6 +41,32 @@ class AdminController {
         }
     }
 
+    async update(req, res) {
+        try {
+            const errors = validationResult(req);
+            if (!errors.isEmpty()) {
+                return res.status(400).json({message: "Некорректный password", errors});
+            }
+
+            const {id} = req.params;
+            const {email, password} = req.body;
+
+            const candidate = await Admin.findOne({where: {email}});
+            if (!candidate) {
+                return res.status(400).json({message: 'Такого email нет!'});
+            }
+
+            const hashPassword = await bcrypt.hash(password, 7);
+            const admin = await Admin.update({email, password: hashPassword}, {where: {id}});
+            const token = generateJwt(admin.id, admin.email);
+
+            return res.json({token});
+
+        } catch(err) {
+            res.status(400).json({message: "Ошибка запроса... update", errors});
+        }
+    }
+
     async login(req, res) {
         try {
             const {email, password} = req.body;
