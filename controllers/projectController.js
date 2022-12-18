@@ -4,13 +4,53 @@ const _ = require('lodash');
 
 const {Project, ProjectPhoto, Info, InfoInform, InfoVolume} = require('../models/models');
 
-// const _transformProject = (project) => {
-//     return {
-//         id: project.id,
-//         name: project.name,
-//         task: project.task
-//     }
-// };
+const _transformInform = (inform) => {
+    return {
+        id: inform.id,
+        infoId: inform.infoId,
+        inform: inform.inform
+    }
+};
+
+const _transformVolume = (volume) => {
+    return {
+        id: volume.id,
+        infoId: volume.infoId,
+        volume: volume.volume
+    }
+};
+
+const _transformPhoto = (photo) => {
+    return {
+        id: photo.id,
+        projectId: photo.projectId,
+        photo: photo.photo
+    }
+};
+
+const _transformInfo = (info) => {
+    return {
+        id: info.id,
+        projectId: info.projectId,
+        customer: info.customer,
+        designer: info.designer,
+        period: info.period,
+        volume: info.volume.map(volume => _transformVolume(volume)),
+        inform: info.inform.map(inform => _transformInform(inform)),
+    }
+};
+
+const _transformProject = (project) => {
+    return {
+        id: project.id,
+        name: project.name,
+        task: project.task,
+        location: project.location,
+        category: project.category,
+        info: _transformInfo(project.info),
+        photo: project.photo.map(photo => _transformPhoto(photo))
+    }
+};
 
 
 class ProjectController {
@@ -73,7 +113,7 @@ class ProjectController {
                 }); 
             }
 
-            return res.json(project);
+            return res.json(_transformProject(project));
 
         } catch(err) { 
             res.status(400).json(err.message);
@@ -93,7 +133,7 @@ class ProjectController {
                     } 
                 ]
             });
-            return res.json(projects);
+            return res.json(projects.map(project => _transformProject(project)));
 
         } catch(err) {
             res.status(400).json(err.message);
@@ -115,7 +155,7 @@ class ProjectController {
                     } 
                 ]
             });
-            return res.json(project);
+            return res.json(_transformProject(project));
 
         } catch(err) {
             res.status(400).json(err.message);
