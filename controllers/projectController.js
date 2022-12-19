@@ -113,7 +113,7 @@ class ProjectController {
                 }); 
             }
 
-            return res.json(_transformProject(project));
+            return res.json(project);
 
         } catch(err) { 
             res.status(400).json(err.message);

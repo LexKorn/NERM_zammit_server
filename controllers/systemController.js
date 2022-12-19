@@ -80,7 +80,6 @@ class SystemController {
             }
 
             return res.json(system);
-            // return res.json(_transformSystem(system));
 
         } catch(err) { 
             res.status(400).json(err.message);

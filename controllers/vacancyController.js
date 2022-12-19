@@ -72,7 +72,7 @@ class VacancyController {
                 });
             }
             
-            return res.json(_transformVacancy(vacancy));
+            return res.json(vacancy);
 
         } catch(err) { 
             res.status(400).json(err.message);
